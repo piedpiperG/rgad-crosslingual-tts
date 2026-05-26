@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rgad-crosslingual-tts"
+version = "0.1.0"
+description = "RGAD cross-lingual Chinese TTS inference and fine-tuning wrapper around ZipVoice"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "piedpiperG" }
+]
+dependencies = [
+  "huggingface_hub>=0.23",
+  "numpy",
+  "torch",
+  "torchaudio",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "ruff>=0.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rgad_crosslingual_tts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

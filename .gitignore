@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Runtime artifacts
+models/
+outputs/
+runs/
+data/
+third_party/
+tmp/
+*.wav
+*.flac
+*.mp3
+*.pt
+*.safetensors
+*.jsonl.gz

@@ -1,0 +1,8 @@
+RGAD Cross-Lingual TTS
+
+This release wraps the ZipVoice architecture and inference code.
+ZipVoice is developed by Xiaomi Corp. and released under the Apache License 2.0:
+https://github.com/k2-fsa/ZipVoice
+
+The default checkpoint was produced by the RGAD-TTS project using reward-gated
+cross-lingual prompt-prefix fine-tuning.

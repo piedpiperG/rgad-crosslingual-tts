@@ -1,0 +1,1 @@
+{"id":"sample_001","prompt_wav":"/path/to/foreign_prompt.wav","target_wav":"/path/to/chinese_target.wav","text":"这是中文目标文本。","prompt_language":"en","target_language":"zh-CN","speaker_id":"speaker_a"}
