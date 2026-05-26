@@ -3,7 +3,7 @@
 这是 RGAD-TTS 项目当前最推荐的跨语言中文 TTS 推理发行版。
 
 它的用途是：**输入一段外语说话人的 prompt audio，保留该说话人的音色，用中文文本合成中文语音**。
-模型主体是 ZipVoice-style flow-matching TTS student，权重来自 RGAD-TTS 的 Stage16
+模型主体是 ZipVoice-style flow-matching TTS compact model，权重来自 RGAD-TTS 的 Stage16
 cross-lingual hardcase fine-tuning。
 
 - GitHub 仓库：<https://github.com/piedpiperG/rgad-crosslingual-tts>
@@ -16,7 +16,7 @@ cross-lingual hardcase fine-tuning。
 
 1. 你有一段外语 prompt audio，例如英语、日语、韩语、播客片段等。
 2. 你希望用这个说话人的音色合成中文文本。
-3. 你希望在本地低延迟运行，而不是调用大型在线 TTS teacher。
+3. 你希望在本地低延迟运行，而不是依赖大型在线 TTS 系统。
 
 推荐推理策略已经封装在本仓库脚本里：
 
@@ -43,57 +43,62 @@ cross-lingual hardcase fine-tuning。
 
 ### FLEURS 公共跨语言基准
 
-| 系统 | 类型 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Original compact student | ZipVoice-style compact student | 946 | 51.31% | 0.551 | 2.988 | 0.0548 |
-| F5-TTS | 开源小/中型 TTS baseline | 946 | 21.22% | 0.526 | 2.699 | 0.1364 |
-| IndexTTS2 teacher | 大 teacher baseline | 946 | 3.68% | 0.667 | 2.979 | 0.9580 |
-| Fish Audio S2 teacher | 大 teacher baseline | 946 | 7.25% | 0.642 | 3.516 | 0.5104 |
-| CosyVoice3 teacher | 大 teacher baseline | 946 | 20.80% | 0.674 | 3.338 | 0.5705 |
-| **RGAD-TTS release** | 本仓库发行权重 | 946 | **13.70%** | 0.512 | **3.244** | **0.0565** |
-| Reference target audio | 目标音频参考 | 946 | 4.15% | 0.066 | 2.727 | - |
+| 系统 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Original compact model | 946 | 51.31% | 0.551 | 2.988 | 0.0548 |
+| F5-TTS | 946 | 21.22% | 0.526 | 2.699 | 0.1364 |
+| IndexTTS2 | 946 | 3.68% | 0.667 | 2.979 | 0.9580 |
+| Fish Audio S2 | 946 | 7.25% | 0.642 | 3.516 | 0.5104 |
+| CosyVoice3 | 946 | 20.80% | 0.674 | 3.338 | 0.5705 |
+| **RGAD-TTS release** | 946 | **13.70%** | 0.512 | **3.244** | **0.0565** |
+| Reference target audio | 946 | 4.15% | 0.066 | 2.727 | - |
 
-在 FLEURS 上，RGAD-TTS 将原始 compact student 的 CER 从 51.31% 降到 13.70%，并低于 F5-TTS 的 21.22%。
-IndexTTS2 和 Fish Audio S2 teacher 在 CER 上仍更强，但 RTF 分别为 0.9580 和 0.5104；RGAD-TTS 的定位是把跨语言克隆能力压缩到可本地快速推理的 student 中。
+在 FLEURS 上，RGAD-TTS 将原始 compact model 的 CER 从 51.31% 降到 13.70%，并低于 F5-TTS 的 21.22%。
+IndexTTS2 和 Fish Audio S2 在 CER 上仍更强，但 RTF 分别为 0.9580 和 0.5104；RGAD-TTS 的定位是提供一个可本地快速推理的跨语言 TTS 模型。
 
 ### Podcast held-out 真实跨语言配音基准
 
-| 系统 | 类型 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Original compact student | ZipVoice-style compact student | 425 | 49.10% | 0.488 | 2.662 | 0.0672 |
-| F5-TTS | 开源小/中型 TTS baseline | 425 | 54.81% | 0.426 | 1.939 | 0.0626 |
-| IndexTTS2 teacher | 大 teacher baseline | 425 | 2.87% | 0.509 | 2.546 | 1.4839 |
-| Fish Audio S2 teacher | 大 teacher baseline | 425 | 169.91% | 0.605 | 3.631 | 0.5035 |
-| CosyVoice3 teacher | 大 teacher baseline | 425 | 105.95% | 0.563 | 3.335 | 0.4570 |
-| **RGAD-TTS release** | 本仓库发行权重 | 425 | **3.38%** | 0.453 | 2.630 | **0.0564** |
-| Podcast target audio | 目标音频参考 | 425 | 2.67% | 0.501 | 2.535 | - |
-
-Podcast held-out 更接近真实外语视频/播客配音场景。RGAD-TTS 的 CER 为 3.38%，接近 IndexTTS2 teacher 的 2.87% 和目标音频参考的 2.67%，但 RTF 约为 IndexTTS2 的 1/26。
-在该基准下，F5-TTS 和部分大 teacher 会出现明显内容错误，说明大模型并不总是在跨语言 prompt 到中文 target 的流水线里稳定。
-
-### 核心消融
-
-| 配置 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
+| 系统 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| **Full RGAD-TTS** | 946 | **13.70%** | 0.512 | 3.244 | 0.0565 |
-| w/o reward gate | 946 | 46.96% | 0.528 | 2.743 | 0.0549 |
-| w/o prompt normalization | 946 | 61.73% | 0.493 | 3.029 | 0.0564 |
-| single-teacher distillation | 946 | 28.47% | 0.494 | 3.070 | 0.0567 |
+| Original compact model | 425 | 49.10% | 0.488 | 2.662 | 0.0672 |
+| F5-TTS | 425 | 54.81% | 0.426 | 1.939 | 0.0626 |
+| IndexTTS2 | 425 | 2.87% | 0.509 | 2.546 | 1.4839 |
+| Fish Audio S2 | 425 | 169.91% | 0.605 | 3.631 | 0.5035 |
+| CosyVoice3 | 425 | 105.95% | 0.563 | 3.335 | 0.4570 |
+| **RGAD-TTS release** | 425 | **3.38%** | 0.453 | 2.630 | **0.0564** |
+| Podcast target audio | 425 | 2.67% | 0.501 | 2.535 | - |
 
-这组消融说明：当前发行权重的提升主要来自 reward-gated acoustic supervision、duration filler/prompt normalization 和多 teacher 目标筛选，而不是单纯增加跨语言 paired data。
+Podcast held-out 更接近真实外语视频/播客配音场景。RGAD-TTS 的 CER 为 3.38%，接近 IndexTTS2 的 2.87% 和目标音频参考的 2.67%，但 RTF 约为 IndexTTS2 的 1/26。
+在该基准下，F5-TTS、Fish Audio S2 和 CosyVoice3 会出现明显内容错误，说明跨语言 prompt 到中文 target 的稳定性需要单独评测。
 
 ## 视频 Demo
 
 以下 demo 来自 `D:\C-data\rgad_stage16_compare_20260515_171437` 的前三个 case，已随仓库放在 `assets/demo_videos/`。
-每个 case 同时给出源视频、历史 IndexTTS2 输出和本发行版 RGAD-TTS 输出，方便直接对比。
+这里只展示源视频和本发行版 RGAD-TTS 输出，不展示其它系统输出。
 
-| Case | 目标中文首句 | 源视频 | IndexTTS2 输出 | RGAD-TTS 输出 | 字幕 |
-| --- | --- | --- | --- | --- | --- |
-| 01 | 我们正遭遇此生前所未有的最大危机。 | [source](assets/demo_videos/source_videos/01_run_20260513_195502_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/01_run_20260513_195502_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/01_run_20260513_195502_rgad.mp4) | [SRT](assets/demo_videos/subtitles/01_run_20260513_195502.srt) |
-| 02 | 这套超值组合内含六件 T 恤，大家快看，款式多漂亮！ | [source](assets/demo_videos/source_videos/02_run_20260513_183602_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/02_run_20260513_183602_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/02_run_20260513_183602_rgad.mp4) | [SRT](assets/demo_videos/subtitles/02_run_20260513_183602.srt) |
-| 03 | 我刚和马特-加明碰过面，他指出，到 两千零二十六 年，可用的 GPU 算力将几乎归零。 | [source](assets/demo_videos/source_videos/03_run_20260511_114936_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/03_run_20260511_114936_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/03_run_20260511_114936_rgad.mp4) | [SRT](assets/demo_videos/subtitles/03_run_20260511_114936.srt) |
+### Get up with me / 短视频配音
 
-注意：这个模型不主张是公开中文 TTS SOTA。它的主要价值是把跨语言克隆能力压缩到一个可本地部署、推理成本较低的 ZipVoice student 中。
+<table>
+  <tr>
+    <td width="50%"><strong>Source</strong></td>
+    <td width="50%"><strong>RGAD-TTS</strong></td>
+  </tr>
+  <tr>
+    <td><video src="https://raw.githubusercontent.com/piedpiperG/rgad-crosslingual-tts/main/assets/demo_videos/source_videos/02_run_20260513_183602_source.mp4" controls width="280"></video></td>
+    <td><video src="https://raw.githubusercontent.com/piedpiperG/rgad-crosslingual-tts/main/assets/demo_videos/rgad_outputs/02_run_20260513_183602_rgad.mp4" controls width="280"></video></td>
+  </tr>
+</table>
+
+目标中文首句：这套超值组合内含六件 T 恤，大家快看，款式多漂亮！
+
+### 其他 RGAD-TTS 输出
+
+| Case | 目标中文首句 | Source | RGAD-TTS 输出 | 字幕 |
+| --- | --- | --- | --- | --- |
+| 01 | 我们正遭遇此生前所未有的最大危机。 | [source](assets/demo_videos/source_videos/01_run_20260513_195502_source.mp4) | [视频](assets/demo_videos/rgad_outputs/01_run_20260513_195502_rgad.mp4) | [SRT](assets/demo_videos/subtitles/01_run_20260513_195502.srt) |
+| 03 | 我刚和马特-加明碰过面，他指出，到 两千零二十六 年，可用的 GPU 算力将几乎归零。 | [source](assets/demo_videos/source_videos/03_run_20260511_114936_source.mp4) | [视频](assets/demo_videos/rgad_outputs/03_run_20260511_114936_rgad.mp4) | [SRT](assets/demo_videos/subtitles/03_run_20260511_114936.srt) |
+
+注意：这个模型不主张是公开中文 TTS SOTA。它的主要价值是提供一个可本地部署、推理成本较低的跨语言中文 TTS 模型。
 
 ## 安装
 

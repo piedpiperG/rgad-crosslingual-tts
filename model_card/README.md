@@ -90,44 +90,35 @@ python scripts/infer.py \
 
 ### FLEURS 公共跨语言基准
 
-| 系统 | 类型 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Original compact student | ZipVoice-style compact student | 946 | 51.31% | 0.551 | 2.988 | 0.0548 |
-| F5-TTS | 开源小/中型 TTS baseline | 946 | 21.22% | 0.526 | 2.699 | 0.1364 |
-| IndexTTS2 teacher | 大 teacher baseline | 946 | 3.68% | 0.667 | 2.979 | 0.9580 |
-| Fish Audio S2 teacher | 大 teacher baseline | 946 | 7.25% | 0.642 | 3.516 | 0.5104 |
-| CosyVoice3 teacher | 大 teacher baseline | 946 | 20.80% | 0.674 | 3.338 | 0.5705 |
-| **RGAD-TTS release** | 本仓库发行权重 | 946 | **13.70%** | 0.512 | **3.244** | **0.0565** |
-| Reference target audio | 目标音频参考 | 946 | 4.15% | 0.066 | 2.727 | - |
+| 系统 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Original compact model | 946 | 51.31% | 0.551 | 2.988 | 0.0548 |
+| F5-TTS | 946 | 21.22% | 0.526 | 2.699 | 0.1364 |
+| IndexTTS2 | 946 | 3.68% | 0.667 | 2.979 | 0.9580 |
+| Fish Audio S2 | 946 | 7.25% | 0.642 | 3.516 | 0.5104 |
+| CosyVoice3 | 946 | 20.80% | 0.674 | 3.338 | 0.5705 |
+| **RGAD-TTS release** | 946 | **13.70%** | 0.512 | **3.244** | **0.0565** |
+| Reference target audio | 946 | 4.15% | 0.066 | 2.727 | - |
 
 ### Podcast held-out 真实跨语言配音基准
 
-| 系统 | 类型 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Original compact student | ZipVoice-style compact student | 425 | 49.10% | 0.488 | 2.662 | 0.0672 |
-| F5-TTS | 开源小/中型 TTS baseline | 425 | 54.81% | 0.426 | 1.939 | 0.0626 |
-| IndexTTS2 teacher | 大 teacher baseline | 425 | 2.87% | 0.509 | 2.546 | 1.4839 |
-| Fish Audio S2 teacher | 大 teacher baseline | 425 | 169.91% | 0.605 | 3.631 | 0.5035 |
-| CosyVoice3 teacher | 大 teacher baseline | 425 | 105.95% | 0.563 | 3.335 | 0.4570 |
-| **RGAD-TTS release** | 本仓库发行权重 | 425 | **3.38%** | 0.453 | 2.630 | **0.0564** |
-| Podcast target audio | 目标音频参考 | 425 | 2.67% | 0.501 | 2.535 | - |
-
-RGAD-TTS 在 FLEURS 上明显超过 F5-TTS 和原始 compact student；在 Podcast held-out 上，CER 接近 IndexTTS2 teacher 和目标音频参考，但 RTF 约为 IndexTTS2 的 1/26。
-IndexTTS2 和 Fish Audio S2 在部分指标上仍更强，因此这里不声明公开中文 TTS SOTA；本模型的核心价值是把跨语言克隆能力压缩到本地可部署的 ZipVoice-style student 中。
-
-### 核心消融
-
-| 配置 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
+| 系统 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| **Full RGAD-TTS** | 946 | **13.70%** | 0.512 | 3.244 | 0.0565 |
-| w/o reward gate | 946 | 46.96% | 0.528 | 2.743 | 0.0549 |
-| w/o prompt normalization | 946 | 61.73% | 0.493 | 3.029 | 0.0564 |
-| single-teacher distillation | 946 | 28.47% | 0.494 | 3.070 | 0.0567 |
+| Original compact model | 425 | 49.10% | 0.488 | 2.662 | 0.0672 |
+| F5-TTS | 425 | 54.81% | 0.426 | 1.939 | 0.0626 |
+| IndexTTS2 | 425 | 2.87% | 0.509 | 2.546 | 1.4839 |
+| Fish Audio S2 | 425 | 169.91% | 0.605 | 3.631 | 0.5035 |
+| CosyVoice3 | 425 | 105.95% | 0.563 | 3.335 | 0.4570 |
+| **RGAD-TTS release** | 425 | **3.38%** | 0.453 | 2.630 | **0.0564** |
+| Podcast target audio | 425 | 2.67% | 0.501 | 2.535 | - |
+
+RGAD-TTS 在 FLEURS 上明显超过 F5-TTS 和原始 compact model；在 Podcast held-out 上，CER 接近 IndexTTS2 和目标音频参考，但 RTF 约为 IndexTTS2 的 1/26。
+IndexTTS2 和 Fish Audio S2 在部分指标上仍更强，因此这里不声明公开中文 TTS SOTA；本模型的核心价值是提供一个本地可部署、推理成本较低的跨语言中文 TTS 模型。
 
 ## 模型特点
 
 - 面向外语 prompt 到中文 TTS 的跨语言克隆。
-- 使用 ZipVoice-style flow-matching student，本地推理成本较低。
+- 使用 ZipVoice-style flow-matching compact model，本地推理成本较低。
 - 推荐使用 duration filler 避免外语 transcript 干扰中文 target。
 - 适合在该仓库基础上继续做 speaker-only prompt mode、duration aligner、speaker loss 等架构改进。
 
