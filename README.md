@@ -1,59 +1,53 @@
 # RGAD Cross-Lingual TTS
 
-RGAD Cross-Lingual TTS is a release package for the best current cross-lingual
-Chinese TTS checkpoint from the RGAD-TTS project.
+这是 RGAD-TTS 项目当前最推荐的跨语言中文 TTS 推理发行版。
 
-It converts a foreign-language prompt audio into Chinese speech while preserving
-the prompt speaker's voice characteristics. The released model is a ZipVoice-style
-flow-matching TTS student fine-tuned with reward-gated cross-lingual prompt-prefix
-data.
+它的用途是：**输入一段外语说话人的 prompt audio，保留该说话人的音色，用中文文本合成中文语音**。
+模型主体是 ZipVoice-style flow-matching TTS student，权重来自 RGAD-TTS 的 Stage16
+cross-lingual hardcase fine-tuning。
 
-- GitHub: <https://github.com/piedpiperG/rgad-crosslingual-tts>
-- Model weights: <https://huggingface.co/isabeth/rgad-crosslingual-tts>
-- Base architecture: ZipVoice, pinned to commit `2f7326fbfe999a3ad179e3f1af82a424d4a62819`
+- GitHub 仓库：<https://github.com/piedpiperG/rgad-crosslingual-tts>
+- HuggingFace 权重：<https://huggingface.co/isabeth/rgad-crosslingual-tts>
+- 底座架构：ZipVoice，固定 commit `2f7326fbfe999a3ad179e3f1af82a424d4a62819`
 
-## What this model is for
+## 模型适合做什么
 
-Use this model when you have:
+适合以下场景：
 
-1. A short prompt audio from a speaker in any language.
-2. Chinese text to synthesize.
-3. A requirement for local, low-latency inference.
+1. 你有一段外语 prompt audio，例如英语、日语、韩语、播客片段等。
+2. 你希望用这个说话人的音色合成中文文本。
+3. 你希望在本地低延迟运行，而不是调用大型在线 TTS teacher。
 
-The recommended inference policy is:
+推荐推理策略已经封装在本仓库脚本里：
 
-- Crop the prompt audio to the first 6 seconds.
-- Do not pass the foreign transcript as prompt text.
-- Use a Chinese duration filler prompt text based on prompt duration.
-- Use `--num-step 8 --speed 1.10`.
+- prompt audio 默认裁剪前 6 秒。
+- 不把外语 transcript 传给模型。
+- 按 prompt 时长自动构造中文 duration filler，例如 `嗯嗯嗯...。`。
+- 默认使用 `--num-step 8 --speed 1.10`。
 
-The wrapper scripts in this repo apply that policy automatically.
+## 当前推荐权重
 
-## Current recommended checkpoint
+默认下载的 HuggingFace 权重对应：
 
-The default Hugging Face files correspond to:
+- 原始实验：`stage16_crosslingual_hardcase_x90_4k_20260514`
+- checkpoint：`best-valid-loss.pt`
+- best valid iter：2500
+- tokenizer：`emilia`
+- 输出采样率：24 kHz
+- 默认推理参数：`num_step=8`，`speed=1.10`
 
-- Source experiment: `stage16_crosslingual_hardcase_x90_4k_20260514`
-- Checkpoint: `best-valid-loss.pt`
-- Best validation iteration: 2500
-- Tokenizer: `emilia`
-- Sample rate: 24 kHz
-- Default inference: `num_step=8`, `speed=1.10`
+内部固定评测结果：
 
-Internal fixed held-out cross-lingual evaluation:
-
-| Set | Items | CER | SIM-o | UTMOS | RTF |
+| 评测集 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Podcast foreign prompt -> Chinese | 425 | 3.38% | 0.453 | 2.630 | 0.0564 |
-| FLEURS foreign prompt -> Chinese | 946 | 8.60% | 0.512 | 3.244 | - |
+| Podcast 外语 prompt -> 中文 | 425 | 3.38% | 0.453 | 2.630 | 0.0564 |
+| FLEURS 外语 prompt -> 中文 | 946 | 8.60% | 0.512 | 3.244 | - |
 
-The model is not claimed to be a public Chinese TTS SOTA model. Its main value is
-local cross-lingual voice cloning with a compact ZipVoice student.
+注意：这个模型不主张是公开中文 TTS SOTA。它的主要价值是把跨语言克隆能力压缩到一个可本地部署的 ZipVoice student 中。
 
-## Installation
+## 安装
 
-Create a Python environment with CUDA-enabled PyTorch if you want GPU inference.
-Python 3.10 is recommended.
+推荐 Python 3.10。GPU 推理需要 CUDA 版 PyTorch。
 
 ```bash
 git clone https://github.com/piedpiperG/rgad-crosslingual-tts.git
@@ -68,16 +62,16 @@ pip install -e .
 python scripts/setup_zipvoice.py
 ```
 
-`setup_zipvoice.py` clones ZipVoice into `third_party/ZipVoice` and checks out the
-commit used by this release. The inference scripts set `PYTHONPATH` automatically.
+`setup_zipvoice.py` 会把 ZipVoice 克隆到 `third_party/ZipVoice`，并切到本发行版验证过的 commit。
+推理脚本会自动设置 `PYTHONPATH`，通常不需要手动改环境变量。
 
-## Download model weights
+## 下载模型权重
 
 ```bash
 python scripts/download_model.py --output-dir models/rgad-crosslingual-tts
 ```
 
-The model directory must contain:
+模型目录应包含：
 
 ```text
 best-valid-loss.pt
@@ -87,10 +81,13 @@ run_config.json
 train_summary.json
 ```
 
-You can also skip this step. `scripts/infer.py` downloads to
-`~/.cache/rgad-crosslingual-tts/model` automatically if no local model is found.
+如果不提前下载，`scripts/infer.py` 在找不到本地模型时会自动从 HuggingFace 下载到：
 
-## Single-sentence inference
+```text
+~/.cache/rgad-crosslingual-tts/model
+```
+
+## 单句推理
 
 ```bash
 python scripts/infer.py \
@@ -101,14 +98,15 @@ python scripts/infer.py \
   --gpu 0
 ```
 
-The script will:
+脚本内部会自动完成：
 
-1. Load and crop the prompt to the first 6 seconds.
-2. Resample it to mono 24 kHz.
-3. Build a Chinese duration filler, e.g. `嗯嗯嗯...。`.
-4. Call ZipVoice with the released checkpoint.
+1. 读取 prompt audio。
+2. 裁剪到前 6 秒。
+3. 转成 mono 24 kHz。
+4. 按实际 prompt 时长构造中文 duration filler。
+5. 调用 ZipVoice 生成中文语音。
 
-Useful options:
+常用参数：
 
 ```bash
 --prompt-seconds 6
@@ -118,16 +116,16 @@ Useful options:
 --gpu cpu
 ```
 
-## Batch inference
+## 批量推理
 
-Create a TSV:
+准备 TSV 文件，每行三列：
 
 ```text
 utt001	/path/to/speaker_a.wav	这是第一条中文文本。
 utt002	/path/to/speaker_b.wav	这是第二条中文文本。
 ```
 
-Run:
+运行：
 
 ```bash
 python scripts/infer_batch.py \
@@ -137,18 +135,35 @@ python scripts/infer_batch.py \
   --gpu 0
 ```
 
-Each output wav is saved as `{wav_name}.wav` under `--res-dir`.
+输出文件会保存为：
 
-## Fine-tuning
+```text
+outputs/batch/{wav_name}.wav
+```
 
-This repo includes the prefix fine-tuning recipe used by the RGAD-TTS cross-lingual
-line. Your input JSONL should contain one row per training item:
+## Python 调用
+
+```python
+from rgad_crosslingual_tts import synthesize
+
+synthesize(
+    prompt_wav="/path/to/foreign_prompt.wav",
+    text="这是一个中文测试。",
+    output_wav="outputs/api_demo.wav",
+    model_dir="models/rgad-crosslingual-tts",
+    gpu="0",
+)
+```
+
+## 继续训练 / 微调
+
+本仓库提供一个轻量 prefix fine-tuning 入口，复用当前跨语言训练链路。你的训练 JSONL 每行格式如下：
 
 ```json
 {"id":"sample_001","prompt_wav":"/path/to/foreign_prompt.wav","target_wav":"/path/to/chinese_target.wav","text":"中文目标文本。","prompt_language":"en","target_language":"zh-CN","speaker_id":"speaker_a"}
 ```
 
-Build Lhotse manifests:
+构建 Lhotse manifest：
 
 ```bash
 python scripts/prepare_prefix_manifest.py \
@@ -166,7 +181,7 @@ python scripts/prepare_prefix_manifest.py \
   --prompt-crop-seconds 6
 ```
 
-Fine-tune:
+开始微调：
 
 ```bash
 export PYTHONPATH="$PWD/third_party/ZipVoice:$PYTHONPATH"
@@ -183,43 +198,54 @@ python scripts/train_prefix.py \
   --condition-drop-ratio 0.2
 ```
 
-Training writes `best-valid-loss.pt`, periodic checkpoints, `model.json`,
-`tokens.txt`, `run_config.json`, and `train_summary.json` to `--exp-dir`.
+训练输出包括：
 
-## Python API
-
-```python
-from rgad_crosslingual_tts import synthesize
-
-synthesize(
-    prompt_wav="/path/to/foreign_prompt.wav",
-    text="这是一个中文测试。",
-    output_wav="outputs/api_demo.wav",
-    model_dir="models/rgad-crosslingual-tts",
-    gpu="0",
-)
+```text
+best-valid-loss.pt
+checkpoint-*.pt
+model.json
+tokens.txt
+run_config.json
+train_summary.json
+train.log
 ```
 
-## Implementation notes
+更详细的训练说明见 [docs/TRAINING.md](docs/TRAINING.md)。
 
-The released checkpoint uses the original ZipVoice model class. This repository
-adds release-quality wrappers and training utilities around it. The current
-cross-lingual improvement comes from data construction and prompt policy:
+## 实现说明
 
-- Prompt-prefix fine-tuning.
-- Cross-lingual prompt normalization with duration filler.
-- Prompt crop to 6 seconds.
-- Reward-gated hardcase fine-tuning.
+当前发行版没有修改 ZipVoice 模型类本身，而是在 ZipVoice 外层封装了：
 
-Future architecture work should focus on:
+- 模型权重下载。
+- 推荐跨语言 prompt 预处理。
+- 单句和批量推理。
+- prompt-prefix fine-tuning 数据准备。
+- target 区域 flow-matching fine-tuning 脚本。
 
-1. Explicit speaker-only prompt mode.
-2. Learned duration aligner instead of token-ratio duration.
-3. Speaker side-channel and speaker consistency loss.
+当前模型效果主要来自：
 
-## License and attribution
+- prompt-prefix 跨语言训练。
+- duration filler prompt normalization。
+- prompt crop 6 秒。
+- reward-gated hardcase fine-tuning。
 
-Code in this release is Apache-2.0. ZipVoice is also Apache-2.0 and is used as
-the base architecture and inference engine. The checkpoint is released for
-research and application prototyping; verify rights for any training data or
-speaker prompt audio you use.
+后续建议优先改进的架构方向：
+
+1. 显式 speaker-only prompt mode。
+2. learned duration aligner，替换 token-ratio duration。
+3. speaker side-channel 和 speaker consistency loss。
+
+## 局限性
+
+- 目标文本主要面向中文。
+- 音色保持依赖 prompt audio 质量。
+- 很长、噪声很大、多人说话的 prompt 可能不稳定。
+- 当前模型仍沿用 ZipVoice 原始 duration 机制，复杂长句的停顿和韵律仍有提升空间。
+
+## 许可和引用
+
+本仓库代码使用 Apache-2.0。ZipVoice 也使用 Apache-2.0，作为本项目的底座架构和推理引擎：
+
+<https://github.com/k2-fsa/ZipVoice>
+
+使用任何说话人 prompt audio 或训练数据时，请自行确认数据和声音授权。
