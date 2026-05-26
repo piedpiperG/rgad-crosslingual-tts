@@ -124,16 +124,6 @@ IndexTTS2 和 Fish Audio S2 在部分指标上仍更强，因此这里不声明�
 | w/o prompt normalization | 946 | 61.73% | 0.493 | 3.029 | 0.0564 |
 | single-teacher distillation | 946 | 28.47% | 0.494 | 3.070 | 0.0567 |
 
-## 视频 Demo
-
-以下 demo 来自 `D:\C-data\rgad_stage16_compare_20260515_171437` 的前三个 case。
-
-| Case | 目标中文首句 | 源视频 | IndexTTS2 输出 | RGAD-TTS 输出 | 字幕 |
-| --- | --- | --- | --- | --- | --- |
-| 01 | 我们正遭遇此生前所未有的最大危机。 | [source](assets/demo_videos/source_videos/01_run_20260513_195502_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/01_run_20260513_195502_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/01_run_20260513_195502_rgad.mp4) | [SRT](assets/demo_videos/subtitles/01_run_20260513_195502.srt) |
-| 02 | 这套超值组合内含六件 T 恤，大家快看，款式多漂亮！ | [source](assets/demo_videos/source_videos/02_run_20260513_183602_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/02_run_20260513_183602_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/02_run_20260513_183602_rgad.mp4) | [SRT](assets/demo_videos/subtitles/02_run_20260513_183602.srt) |
-| 03 | 我刚和马特-加明碰过面，他指出，到 两千零二十六 年，可用的 GPU 算力将几乎归零。 | [source](assets/demo_videos/source_videos/03_run_20260511_114936_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/03_run_20260511_114936_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/03_run_20260511_114936_rgad.mp4) | [SRT](assets/demo_videos/subtitles/03_run_20260511_114936.srt) |
-
 ## 模型特点
 
 - 面向外语 prompt 到中文 TTS 的跨语言克隆。
