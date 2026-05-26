@@ -83,14 +83,56 @@ python scripts/infer.py \
 - `run_config.json`：训练配置。
 - `train_summary.json`：训练摘要。
 
-## 内部评测
+## 跨语言 TTS 评测
 
-| 评测集 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
+下面结果整理自原 RGAD-TTS 项目的 `docs/paper_assets/stage21_main_text_20260520` 主表。
+所有系统使用相同 prompt audio、目标文本、ASR、SIM-o、UTMOS 和 RTF 评测协议；目标语言为中文，因此主要看 CER。
+
+### FLEURS 公共跨语言基准
+
+| 系统 | 类型 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Original compact student | ZipVoice-style compact student | 946 | 51.31% | 0.551 | 2.988 | 0.0548 |
+| F5-TTS | 开源小/中型 TTS baseline | 946 | 21.22% | 0.526 | 2.699 | 0.1364 |
+| IndexTTS2 teacher | 大 teacher baseline | 946 | 3.68% | 0.667 | 2.979 | 0.9580 |
+| Fish Audio S2 teacher | 大 teacher baseline | 946 | 7.25% | 0.642 | 3.516 | 0.5104 |
+| CosyVoice3 teacher | 大 teacher baseline | 946 | 20.80% | 0.674 | 3.338 | 0.5705 |
+| **RGAD-TTS release** | 本仓库发行权重 | 946 | **13.70%** | 0.512 | **3.244** | **0.0565** |
+| Reference target audio | 目标音频参考 | 946 | 4.15% | 0.066 | 2.727 | - |
+
+### Podcast held-out 真实跨语言配音基准
+
+| 系统 | 类型 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Original compact student | ZipVoice-style compact student | 425 | 49.10% | 0.488 | 2.662 | 0.0672 |
+| F5-TTS | 开源小/中型 TTS baseline | 425 | 54.81% | 0.426 | 1.939 | 0.0626 |
+| IndexTTS2 teacher | 大 teacher baseline | 425 | 2.87% | 0.509 | 2.546 | 1.4839 |
+| Fish Audio S2 teacher | 大 teacher baseline | 425 | 169.91% | 0.605 | 3.631 | 0.5035 |
+| CosyVoice3 teacher | 大 teacher baseline | 425 | 105.95% | 0.563 | 3.335 | 0.4570 |
+| **RGAD-TTS release** | 本仓库发行权重 | 425 | **3.38%** | 0.453 | 2.630 | **0.0564** |
+| Podcast target audio | 目标音频参考 | 425 | 2.67% | 0.501 | 2.535 | - |
+
+RGAD-TTS 在 FLEURS 上明显超过 F5-TTS 和原始 compact student；在 Podcast held-out 上，CER 接近 IndexTTS2 teacher 和目标音频参考，但 RTF 约为 IndexTTS2 的 1/26。
+IndexTTS2 和 Fish Audio S2 在部分指标上仍更强，因此这里不声明公开中文 TTS SOTA；本模型的核心价值是把跨语言克隆能力压缩到本地可部署的 ZipVoice-style student 中。
+
+### 核心消融
+
+| 配置 | 样本数 | CER ↓ | SIM-o ↑ | UTMOS ↑ | RTF ↓ |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Podcast 外语 prompt -> 中文 | 425 | 3.38% | 0.453 | 2.630 | 0.0564 |
-| FLEURS 外语 prompt -> 中文 | 946 | 8.60% | 0.512 | 3.244 | - |
+| **Full RGAD-TTS** | 946 | **13.70%** | 0.512 | 3.244 | 0.0565 |
+| w/o reward gate | 946 | 46.96% | 0.528 | 2.743 | 0.0549 |
+| w/o prompt normalization | 946 | 61.73% | 0.493 | 3.029 | 0.0564 |
+| single-teacher distillation | 946 | 28.47% | 0.494 | 3.070 | 0.0567 |
 
-这些是项目内部固定评测结果，不应理解为公开中文 TTS SOTA 声明。
+## 视频 Demo
+
+以下 demo 来自 `D:\C-data\rgad_stage16_compare_20260515_171437` 的前三个 case。
+
+| Case | 目标中文首句 | 源视频 | IndexTTS2 输出 | RGAD-TTS 输出 | 字幕 |
+| --- | --- | --- | --- | --- | --- |
+| 01 | 我们正遭遇此生前所未有的最大危机。 | [source](assets/demo_videos/source_videos/01_run_20260513_195502_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/01_run_20260513_195502_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/01_run_20260513_195502_rgad.mp4) | [SRT](assets/demo_videos/subtitles/01_run_20260513_195502.srt) |
+| 02 | 这套超值组合内含六件 T 恤，大家快看，款式多漂亮！ | [source](assets/demo_videos/source_videos/02_run_20260513_183602_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/02_run_20260513_183602_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/02_run_20260513_183602_rgad.mp4) | [SRT](assets/demo_videos/subtitles/02_run_20260513_183602.srt) |
+| 03 | 我刚和马特-加明碰过面，他指出，到 两千零二十六 年，可用的 GPU 算力将几乎归零。 | [source](assets/demo_videos/source_videos/03_run_20260511_114936_source.mp4) | [IndexTTS2](assets/demo_videos/indextts2_outputs/03_run_20260511_114936_indextts2.mp4) | [RGAD-TTS](assets/demo_videos/rgad_outputs/03_run_20260511_114936_rgad.mp4) | [SRT](assets/demo_videos/subtitles/03_run_20260511_114936.srt) |
 
 ## 模型特点
 
