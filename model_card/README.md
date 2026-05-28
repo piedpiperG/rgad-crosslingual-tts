@@ -83,6 +83,18 @@ python scripts/infer.py \
 - `run_config.json`：训练配置。
 - `train_summary.json`：训练摘要。
 
+## 配套数据集
+
+10 小时跨语言 TTS 数据集：
+
+<https://huggingface.co/datasets/isabeth/rgad-crosslingual-tts-10h>
+
+数据集包含 `train.jsonl`、`dev.jsonl`、`metadata.csv`、`audio/prompts/*.wav`
+和 `audio/targets/*.wav`。可配合 GitHub 仓库中的 `scripts/prepare_prefix_manifest.py`
+构建 prefix fine-tuning manifest。JSONL 每行包含
+`id`、`prompt_wav`、`target_wav`、`text`、`prompt_language`、`target_language`
+和 `speaker_id`，音频路径相对数据集根目录。
+
 ## 跨语言 TTS 评测
 
 下面结果整理自原 RGAD-TTS 项目的 `docs/paper_assets/stage21_main_text_20260520` 主表。

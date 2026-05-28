@@ -212,25 +212,38 @@ synthesize(
 
 ## 继续训练 / 微调
 
-本仓库提供一个轻量 prefix fine-tuning 入口，复用当前跨语言训练链路。你的训练 JSONL 每行格式如下：
+本仓库提供一个轻量 prefix fine-tuning 入口。配套 10 小时跨语言 TTS 数据集：
+
+<https://huggingface.co/datasets/isabeth/rgad-crosslingual-tts-10h>
+
+数据集包含 `train.jsonl`、`dev.jsonl`、`metadata.csv`、`audio/prompts/*.wav`
+和 `audio/targets/*.wav`。JSONL 每行格式如下：
 
 ```json
 {"id":"sample_001","prompt_wav":"/path/to/foreign_prompt.wav","target_wav":"/path/to/chinese_target.wav","text":"中文目标文本。","prompt_language":"en","target_language":"zh-CN","speaker_id":"speaker_a"}
+```
+
+下载数据集：
+
+```bash
+huggingface-cli download isabeth/rgad-crosslingual-tts-10h \
+  --repo-type dataset \
+  --local-dir data/rgad-crosslingual-tts-10h
 ```
 
 构建 Lhotse manifest：
 
 ```bash
 python scripts/prepare_prefix_manifest.py \
-  --input-jsonl data/train.jsonl \
-  --output-dir data/prefix_manifest \
+  --input-jsonl data/rgad-crosslingual-tts-10h/train.jsonl \
+  --output-dir data/rgad-crosslingual-tts-10h/prefix_manifest \
   --split train \
   --prompt-text-policy duration_filler \
   --prompt-crop-seconds 6
 
 python scripts/prepare_prefix_manifest.py \
-  --input-jsonl data/dev.jsonl \
-  --output-dir data/prefix_manifest \
+  --input-jsonl data/rgad-crosslingual-tts-10h/dev.jsonl \
+  --output-dir data/rgad-crosslingual-tts-10h/prefix_manifest \
   --split dev \
   --prompt-text-policy duration_filler \
   --prompt-crop-seconds 6
@@ -242,8 +255,8 @@ python scripts/prepare_prefix_manifest.py \
 export PYTHONPATH="$PWD/third_party/ZipVoice:$PYTHONPATH"
 
 python scripts/train_prefix.py \
-  --train-manifest data/prefix_manifest/cuts_train.jsonl.gz \
-  --dev-manifest data/prefix_manifest/cuts_dev.jsonl.gz \
+  --train-manifest data/rgad-crosslingual-tts-10h/prefix_manifest/cuts_train.jsonl.gz \
+  --dev-manifest data/rgad-crosslingual-tts-10h/prefix_manifest/cuts_dev.jsonl.gz \
   --model-config models/rgad-crosslingual-tts/model.json \
   --checkpoint models/rgad-crosslingual-tts/best-valid-loss.pt \
   --token-file models/rgad-crosslingual-tts/tokens.txt \

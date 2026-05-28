@@ -9,11 +9,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-from lhotse import CutSet
-from lhotse.audio import Recording
-from lhotse.cut import MonoCut
-from lhotse.supervision import SupervisionSegment
-
 from rgad_crosslingual_tts.audio import build_duration_filler, concat_prompt_target
 from rgad_crosslingual_tts.constants import DEFAULT_PROMPT_SECONDS, DEFAULT_SAMPLE_RATE
 
@@ -53,6 +48,13 @@ def build_prefix_manifest(
 ) -> dict[str, Any]:
     """Build a Lhotse CutSet manifest for cross-lingual prefix fine-tuning."""
 
+    from lhotse import CutSet
+    from lhotse.audio import Recording
+    from lhotse.cut import MonoCut
+    from lhotse.supervision import SupervisionSegment
+
+    input_jsonl = Path(input_jsonl)
+    input_base_dir = input_jsonl.expanduser().resolve().parent
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     materialized_rows: list[dict[str, Any]] = []
@@ -60,8 +62,8 @@ def build_prefix_manifest(
 
     for index, row in enumerate(read_jsonl(input_jsonl)):
         sample_id = str(row.get("id") or row.get("sample_id") or f"{split}_{index:06d}")
-        prompt_wav = Path(str(row["prompt_wav"])).expanduser().resolve()
-        target_wav = Path(str(row["target_wav"])).expanduser().resolve()
+        prompt_wav = _resolve_audio_path(row["prompt_wav"], input_base_dir)
+        target_wav = _resolve_audio_path(row["target_wav"], input_base_dir)
         target_text = " ".join(str(row["text"]).split())
         prompt_language = str(row.get("prompt_language") or "und")
         target_language = str(row.get("target_language") or "zh-CN")
@@ -154,6 +156,13 @@ def build_prefix_manifest(
 
 def _slug(value: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.-]+", "-", value).strip("-") or "item"
+
+
+def _resolve_audio_path(value: str | Path, base_dir: Path) -> Path:
+    path = Path(str(value)).expanduser()
+    if not path.is_absolute():
+        path = base_dir / path
+    return path.resolve()
 
 
 def get_parser() -> argparse.ArgumentParser:
